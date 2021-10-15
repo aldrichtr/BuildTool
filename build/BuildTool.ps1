@@ -97,11 +97,13 @@ Get-BuildTask -Path "$BuildRoot\build\tasks" -Recurse | ForEach-Object {
 
 . "$BuildRoot\build\phases.ps1"
 
+# write helpful output
 task help {
     Write-Build Gray ('=' * 80)
-    Write-Build Gray "# BuildTools project running in $BuildRoot"
-    Write-Build DarkGray "run Invoke-Build ?"
+    Write-Build Gray "# `u{E7A2} PowerShell BuildTools "
+    Write-Build Gray "# BuildTools project running in '$BuildRoot'"
     Write-Build Gray ('=' * 80)
 }
 
+# synopsis: If no task is defined, run this
 task . help

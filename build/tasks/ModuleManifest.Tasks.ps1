@@ -3,7 +3,7 @@
 manifest update_exported_functions `
     -Module $Path.ModuleManifestFile `
     -Property 'FunctionsToExport' `
-    -Value (Get-ModuleComponent -Type public -Path $Path.Source)
+    -Value (Get-ModuleComponent -Type public -Path $Path.Source -ErrorAction SilentlyContinue)
 
 
 

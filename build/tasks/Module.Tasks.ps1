@@ -1,4 +1,5 @@
 
+# synopsis: Create the module file in staging from source files
 task generate_module_file {
     Write-Build Yellow "Creating the staging module from source files"
 },
