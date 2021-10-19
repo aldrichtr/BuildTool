@@ -3,9 +3,8 @@
 .SYNOPSIS
     Set the value specified in the Manifest file
 .DESCRIPTION
-    the pConfig is a path to a psd1 file in the PesterConfiguration schema
-
-    it is meant to be used in conjunction with the manifest alias.
+    `Update-ManifestTask` is meant to be used in conjunction
+    with the `manifest` alias.
 .EXAMPLE
     manifest update_exported_functions <module> <property> <value>
 #>
@@ -50,5 +49,3 @@ function Update-ManifestTask {
         }
     }
 }
-
-Set-Alias manifest Update-ManifestTask
