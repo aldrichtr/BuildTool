@@ -36,8 +36,14 @@ function Add-PesterTestTask {
 
 )
     task $Name -Data $PSBoundParameters -Source:$MyInvocation {
-        Import-Module $Task.Data.Module -Force -ErrorAction Stop
-        $PesterConfiguration = New-PesterConfiguration -HashTable (Import-Psd $Task.Data.PesterConfig)
-        Invoke-Pester -Configuration $PesterConfiguration
+        try {
+            Import-Module $Task.Data.Module -Force
+            $PesterConfiguration = New-PesterConfiguration -HashTable (Import-Psd $Task.Data.PesterConfig)
+            Invoke-Pester -Configuration $PesterConfiguration
+        } catch {
+            Write-Build Red "$($Task.Name) Couldn't run Pester tests:`
+            `nModule: $($Task.Data.Module)`
+            `nConfiguration: $($Task.Data.PesterConfig)"
+        }
     }
 }
