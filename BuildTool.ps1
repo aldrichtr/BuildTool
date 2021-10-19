@@ -92,8 +92,8 @@ param(
         [Hashtable]
         $Source = (property Source @{
             Path            = "$BuildRoot\$ModuleName"
-            Module          = "$($Staging.Path)\$ModuleFile"
-            Manifest        = "$($Staging.Path)\$ModuleManifestFile"
+            Module          = ""
+            Manifest        = ""
             Types           = @('enum', 'classes', 'private', 'public')
             CustomLoadOrder = ''
         }),
@@ -143,8 +143,8 @@ param(
         [hashtable]
         $Staging = (property Staging @{
             Path     = "$BuildRoot\stage"
-            Module   = "$($Staging.Path)\$ModuleFile"
-            Manifest = "$($Staging.Path)\$ModuleManifestFile"
+            Module   = ""
+            Manifest = ""
         }),
 
         # A hash of values related to the artifact directory.
@@ -156,7 +156,11 @@ param(
             Path = "$BuildRoot\artifact"
         })
 )
-
+## fixup some self referencing hash keys
+if ($Source.Module -eq '') {$Source.Module = "$($Source.Path)\$ModuleFile"}
+if ($Source.Manifest -eq '') {$Source.Manifest = "$($Source.Path)\$ModuleManifestFile"}
+if ($Staging.Module -eq '') {$Staging.Module = "$($Staging.Path)\$ModuleFile"}
+if ($Staging.Manifest -eq '') {$Staging.Manifest = "$($Staging.Path)\$ModuleManifestFile"}
 
 $BuildToolsDefaultConfig = (Get-Item "$BuildTools\config\buildtools.defaults.ps1")
 $LoadStatus = @{
