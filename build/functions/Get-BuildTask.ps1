@@ -23,17 +23,15 @@ Function Get-BuildTask {
         $buildtask_file_pattern = "*.Tasks.ps1"
         $task_files = [System.Collections.ArrayList]::new()
     }
+
     process {
         foreach ($currentPath in ($Path | Resolve-Path | Convert-Path )) {
             if ((Test-Path $currentPath -PathType Leaf) -and
                 ($currentPath -like $buildtask_file_pattern )) {
-                Write-Verbose "Adding $currentPath"
-                $task_files.Add($currentPath) | Out-Null
+                    $task_files.Add((Get-Item $currentPath)) | Out-Null
             } elseif (Test-Path $currentPath -PathType Container) {
-                Write-Verbose "Processing folder $currentPath"
                 Get-ChildItem -Path $currentPath -Include $buildtask_file_pattern -Recurse:$Recurse | ForEach-Object {
-                    Write-Verbose "Adding $($_.FullName)"
-                    $task_files.Add($_.FullName) | Out-Null
+                    $task_files.Add($_) | Out-Null
                 }
             } else {
                 Write-Verbose "Skipping $currentPath"
