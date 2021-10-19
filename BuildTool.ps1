@@ -216,7 +216,7 @@ Get-BuildTask -Path $TaskFiles -Recurse | ForEach-Object {
 }
 
 # TODO: Move this into the TaskFiles array, or into the tasks folder.
-. "$BuildRoot\build\phases.ps1"
+. "$BuildTools\phases.ps1"
 
 Enter-Build {
     Write-Build Gray ('=' * 80)
