@@ -3,7 +3,7 @@
 task register_local_artifact_repository {
     $local_repo = @{
         Name         = $ModuleName
-        Location     = $Path.Artifact
+        Location     = $Artifact.Path
         Trusted      = $true
         ProviderName = "PowerShellGet"
     }
@@ -15,17 +15,9 @@ task remove_temp_repository {
     Unregister-PackageSource -Name $ModuleName -ErrorAction SilentlyContinue
 }
 
-# synopsis: a nuget package from the files in $Path.Staging.  At a minimum,
+# synopsis: a nuget package from the files in Staging.
 task publish_to_temp_repository {
-    $psd_file = Join-Path -Path $Path.Staging -ChildPath "$ModuleName.psd1"
-    $psm_file = Join-Path -Path $Path.Staging -ChildPath "$ModuleName.psm1"
-
-    if ((Test-Path $psd_file) -and (Test-Path $psm_file)) {
-        Write-Build Yellow "- Packaging the $ModuleName module"
-        Publish-Module -Path $Path.Staging -Repository $ModuleName
-    } else {
-        Write-Build Red "Required files for packaging were not found"
-    }
+    Publish-Module -Path $Staging.Path -Repository $ModuleName
 }
 
 # synopsis: remove the module from memory and delete from disk

@@ -41,5 +41,3 @@ function Add-PesterTestTask {
         Invoke-Pester -Configuration $PesterConfiguration
     }
 }
-
-Set-Alias test Add-PesterTestTask
