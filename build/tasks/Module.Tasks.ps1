@@ -5,10 +5,12 @@ task generate_module_file {
 },
     write_file_header,
     copy_source_content_to_psm1
+
+
 # synopsis: Write a file header for the module file
 task write_file_header {
-    Set-Content -Path $Path.ModuleFile -Value ("#" * 80)
-    Add-Content -Path $Path.ModuleFile -Value "# $ModuleName : $([datetime]::Now)`n`n"
+    Set-Content -Path $Staging.Module -Value ("#" * 80)
+    Add-Content -Path $Staging.Module -Value "# $ModuleName : $([datetime]::Now)`n`n"
 }
 
 # synopsis: Assemble the contents of individual source files into the psm1 file
@@ -19,22 +21,22 @@ task copy_source_content_to_psm1 {
         foreach ($file in (Get-Content $CustomLoadOrder)) {
             if (Test-Path $file) {
                 $file_count++
-                Get-Content $file | Add-Content -Path $Path.ModuleFile
+                Get-Content $file | Add-Content -Path $Staging.Module
             } else {
                 Write-Build Red "Can't find $file listed in $CustomLoadOrder"
             }
         }
     } else {
-        foreach ($type in $SourceTypes ) {
-            $src_path = Join-Path -Path $Path.Source -ChildPath $type
+        foreach ($type in $Source.Types ) {
+            $src_path = Join-Path -Path $Source.Path -ChildPath $type
             if (Test-Path $src_path) {
                 # Create a section header
-                Add-Content -Path $Path.ModuleFile -Value ("#" * 80)
-                Add-Content -Path $Path.ModuleFile -Value "# $type Section`n`n"
+                Add-Content -Path $Staging.Module -Value ("#" * 80)
+                Add-Content -Path $Staging.Module -Value "# $type Section`n`n"
 
                 Get-ChildItem -Path $src_path -Include "*.ps1" -Recurse | Foreach-Object {
                     Write-Build Blue "Adding $($_.BaseName) to $($ModuleName)"
-                    Get-Content -Path $_ | Add-Content -Path $target_module.FullName
+                    Get-Content -Path $_ | Add-Content -Path $Staging.Module
                     $file_count++
                 }
             }

@@ -10,5 +10,5 @@ param(
 
 # synopsis: the top level task
 task top help, {
-    Write-Build Gray "$($Task.Name) called looking for $($Path.Source)"
+    Write-Build Gray "$($Task.Name) called looking for $($Source.Path)"
 }

@@ -1,15 +1,19 @@
+# synopsis: Copy the source manifest file to staging
+task stage_source_manifest {
+    Copy-Item -Path $Source.Path -Destination $Staging.Path
+}
 
 # synopsis: Update the 'FunctionsToExport' using the names of the files in the Public folder
 manifest update_exported_functions `
-    -Module $Path.ModuleManifestFile `
+    -Module $Source.Manifest `
     -Property 'FunctionsToExport' `
-    -Value (Get-ModuleComponent -Type public -Path $Path.Source -ErrorAction SilentlyContinue)
+    -Value (Get-ModuleComponent -Type public -Path $Source.Path -ErrorAction SilentlyContinue)
 
 
 
 
 # synopsis: Update the 'AliasesToExport' using the public/Aliases.ps1
 manifest update_exported_aliases `
-    -Module $Path.ModuleManifestFile `
+    -Module $Staging.Manifest `
     -Property 'AliasesToExport' `
-    -Value (Get-Content "$($Path.Source)\public\Aliases.ps1" -ErrorAction SilentlyContinue)
+    -Value (Get-Content "$($Source.Path)\public\Aliases.ps1" -ErrorAction SilentlyContinue)

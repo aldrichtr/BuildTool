@@ -1,12 +1,10 @@
 
-<#
-.Synopsis
-    Remove generated files in output directories
-#>
+
+# synopsis: Remove generated files in output directories
 task Clean {
     @(
-        $Path.Artifact,
-        $Path.Staging
+        $Artifact.Path,
+        $Staging.Path
     ) | ForEach-Object {
         remove "$_/*"
     }
