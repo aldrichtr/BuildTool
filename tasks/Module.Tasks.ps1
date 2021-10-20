@@ -17,13 +17,32 @@ task write_file_header {
 task copy_source_content_to_psm1 {
     # keep track of how many files were imported
     $file_count = 0
-    if (Test-Path $CustomLoadOrder) {
-        foreach ($file in (Get-Content $CustomLoadOrder)) {
-            if (Test-Path $file) {
-                $file_count++
-                Get-Content $file | Add-Content -Path $Staging.Module
-            } else {
-                Write-Build Red "Can't find $file listed in $CustomLoadOrder"
+    if (Test-Path $Source.CustomLoadOrder) {
+        foreach ($line in (Get-Content $Source.CustomLoadOrder)) {
+            switch ($line) {
+                '\s*$' {
+                    # blank line, skip
+                    continue
+                 }
+                '^\s*#$' {
+                    # Comment line, skip
+                    continue
+                }
+                '^.*\.ps1' {
+                    # load these
+                    $file = "$($Source.Path)\$file"
+                    if (Test-Path $file) {
+                        $file_count++
+                        Get-Content $file | Add-Content -Path $Staging.Module
+                    } else {
+                        Write-Build Red "Can't find $file listed in $($Source.CustomLoadOrder)"
+                    }
+                    continue
+                }
+                default {
+                    #unrecognized, skip
+                    continue
+                }
             }
         }
     } else {
