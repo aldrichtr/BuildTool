@@ -1,0 +1,13 @@
+<%#
+#+NAME: Function Pester Tests
+#+DESCRIPTION: Create a Describe/Context/It block for a PowerShell Function
+#+TAGS: function, test, pester
+-%>
+
+Describe "Testing <%= $Visibility %> <%= $Type %> <%= $Name %>" -Tags @('unit', '<%= $Noun %>', '<%= $Verb %>' ) {
+    Context "Basic functionality" {
+        It "Should load without error" {
+            {Get-Help <%= $Name %> -ErrorAction Stop} | Should -Not -Throw
+        }
+    }
+}

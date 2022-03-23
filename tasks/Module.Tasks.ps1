@@ -1,65 +1,60 @@
+#region Module tasks
 
 # synopsis: Create the module file in staging from source files
-task generate_module_file {
-    Write-Build Yellow "Creating the staging module from source files"
-},
-    write_file_header,
-    copy_source_content_to_psm1
-
-
-# synopsis: Write a file header for the module file
-task write_file_header {
-    Set-Content -Path $Staging.Module -Value ("#" * 80)
-    Add-Content -Path $Staging.Module -Value "# $ModuleName : $([datetime]::Now)`n`n"
-}
+task make_staging_module copy_source_content_to_psm1
 
 # synopsis: Assemble the contents of individual source files into the psm1 file
 task copy_source_content_to_psm1 {
     # keep track of how many files were imported
-    $file_count = 0
-    if (Test-Path $Source.CustomLoadOrder) {
-        foreach ($line in (Get-Content $Source.CustomLoadOrder)) {
-            switch ($line) {
-                '\s*$' {
-                    # blank line, skip
-                    continue
-                 }
-                '^\s*#$' {
-                    # Comment line, skip
-                    continue
-                }
-                '^.*\.ps1' {
-                    # load these
-                    $file = "$($Source.Path)\$file"
-                    if (Test-Path $file) {
-                        $file_count++
-                        Get-Content $file | Add-Content -Path $Staging.Module
-                    } else {
-                        Write-Build Red "Can't find $file listed in $($Source.CustomLoadOrder)"
-                    }
-                    continue
-                }
-                default {
-                    #unrecognized, skip
-                    continue
-                }
-            }
-        }
-    } else {
-        foreach ($type in $Source.Types ) {
-            $src_path = Join-Path -Path $Source.Path -ChildPath $type
-            if (Test-Path $src_path) {
-                # Create a section header
-                Add-Content -Path $Staging.Module -Value ("#" * 80)
-                Add-Content -Path $Staging.Module -Value "# $type Section`n`n"
-
-                Get-ChildItem -Path $src_path -Include "*.ps1" -Recurse | Foreach-Object {
-                    Write-Build Blue "Adding $($_.BaseName) to $($ModuleName)"
-                    Get-Content -Path $_ | Add-Content -Path $Staging.Module
-                    $file_count++
-                }
-            }
+    $c = Get-BuildConfiguration
+    $modules = Get-ModuleList
+    New-Item -itemtype Directory -Path "$($c.Staging.Path)\$($c.Project.Name)" -Force
+    foreach ($m in $modules) {
+        $staging_module = "$($c.Staging.Path)\$($c.Project.Name)\$($m.Name).psm1"
+        Set-Content -Path $staging_module -Value ("#" * 80)
+        Add-Content -Path $staging_module -Value "# $($m.Name) : $([datetime]::Now)`n`n"
+        $sources = Get-SourceItem "$($c.Project.Path)\$($m.Path)"
+        foreach ($t in $m.Types) {
+            "#region $t Section" | Add-Content $staging_module
+            $sources | Where-Object -Property Visibility -eq $t | Add-ModuleContent $staging_module
+            "#endregion $t Section" | Add-Content $staging_module
         }
     }
-    Write-Build Green "( $file_count ) files assembled into $target_module"
+}
+#endregion Module tasks
+
+
+#region Manifest tasks
+
+# synopsis: Create a module manifest in the staging directory.
+task make_staging_manifest {
+    $c       = Get-BuildConfiguration
+    $modules = Get-ModuleList
+    $r       = $modules | Where-Object -Property Root -eq $true
+    $nested  = $modules | Where-Object -Property Root -eq $false
+
+    $ex_functions = @()
+
+    $staging_manifest = (Join-Path $c.Project.Path ($r.Manifest -replace $c.Source.Path, $c.Staging.Path))
+    copy-item (Join-Path $c.Project.Path $r.Manifest) $staging_manifest
+    Write-Build Blue "Staging Manifest : $staging_manifest"
+
+#    $mani = Test-ModuleManifest $staging_manifest
+
+    foreach ($m in $modules) {
+        $ex_functions += Get-SourceItem (Join-Path $c.Project.Path $m.Path) | where-object {
+            $_.Visibility -like 'public'
+        }
+    }
+
+    $module_options = @{
+        Path              = $staging_manifest
+        RootModule        = "$($r.Name).psm1"
+        FunctionsToExport = $ex_functions
+    }
+    if ($nested.Length -gt 0) {
+        $n_mod = ($nested | select -Property Name) | Foreach-Object { "$_.psm1" }
+        $module_options.NestedModules     = $n_mod
+    }
+    Update-ModuleManifest @module_options
 }

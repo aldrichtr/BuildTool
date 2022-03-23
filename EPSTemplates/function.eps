@@ -1,0 +1,31 @@
+<%#
+#+NAME: Function Definition
+#+DESCRIPTION: Create a PowerShell "Advanced" Function
+#+TAGS: function, advanced
+-%>
+
+<#
+.SYNOPSIS
+
+.DESCRIPTION
+
+#>
+Function $Name {
+    [CmdletBinding()]
+    param (
+
+    )
+
+    begin {
+        Write-Debug "In $($PSCmdlet.MyInvocation.MyCommand.Name)`n$('-' * 78)"
+    }
+
+    process {
+
+    }
+
+    end {
+
+        Write-Debug "Return from $($PSCmdlet.MyInvocation.MyCommand.Name)`n$('-' * 78)"
+    }
+}

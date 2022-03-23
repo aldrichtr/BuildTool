@@ -173,7 +173,7 @@
     Output       = @{
         # Default = 'Normal'
         # Description = 'The verbosity of output, options are None, Normal, Detailed and Diagnostic.'
-        Verbosity           = 'Normal'
+        Verbosity           = 'Detailed'
 
         # Default = 'Filtered'
         # Description = 'The verbosity of stacktrace output, options are None, FirstLine, Filtered and Full.'

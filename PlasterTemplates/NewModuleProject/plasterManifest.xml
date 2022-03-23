@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest schemaVersion="1.1"
+  templateType="Project"
+  xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>BuildToolDefaultModuleProjectTemplate</name>
+    <id>954a0c86-f09b-4b35-aa45-8be08fa430ba</id>
+    <version>0.0.1</version>
+    <title>New PowerShell Module Project</title>
+    <description>This Plaster template is used to create the files and folders for a new PowerShell Module Project</description>
+    <author>Tim Aldrich</author>
+    <tags>Module</tags>
+  </metadata>
+  <parameters>
+    <parameter name="ModuleName"
+      type="text"
+      prompt="Name of your module"
+      default="${PLASTER_DestinationName}" />
+    <parameter name="ModuleDesc"
+      type="text"
+      prompt="Brief description on this module"
+      default="${PLASTER_ModuleName}" />
+    <parameter name="GitHubRepo"
+      type="text"
+      prompt="Github repo name for this module"
+      default="${PLASTER_PARAM_ModuleName}" />
+    <parameter name="GitHubUserName"
+      type="user-fullname"
+      prompt="GitHub username"
+      default="${PLASTER_PARAM_FullName}" />
+    <parameter name="FullName"
+      type="text"
+      prompt="Module author's name"
+      default="${PLASTER_PARAM_GitHubUserName}" />
+    <parameter name="CompanyName"
+      type="text"
+      prompt="Company name"
+      default="City National Bank" />
+  </parameters>
+  <content>
+    <message> ---=:[ Creating $PLASTER_PARAM_ModuleName ]:=--- </message>
+    <!-- ************************************************************************************ -->
+    <message> - Generating folders ... </message>
+    <message>   - Publishing directory (out/) </message>
+    <file source=''
+      destination='out/' />
+
+    <message>   - Staging directory (stage/ ) </message>
+    <file source=''
+      destination='stage/' />
+
+    <message>   - Documentation directory (docs/) </message>
+    <file source=''
+      destination='docs/images' />
+
+    <message>   - Testing directory (tests/) </message>
+    <file source=''
+      destination='tests/data' />
+
+    <message>   - VSCode settings (.vscode/) </message>
+    <file source=''
+      destination='.vscode' />
+
+    <message>   - Source file directories (source/${PLASTER_PARAM_ModuleName}) </message>
+    <file source=''
+      destination='source/${PLASTER_PARAM_ModuleName}/classes' />
+    <file source=''
+      destination='source/${PLASTER_PARAM_ModuleName}/enum' />
+    <file source=''
+      destination='source/${PLASTER_PARAM_ModuleName}/data' />
+    <file source=''
+      destination='source/${PLASTER_PARAM_ModuleName}/private' />
+    <file source=''
+      destination='source/${PLASTER_PARAM_ModuleName}/public' />
+
+    <!-- ************************************************************************************ -->
+    <message> - Generating module and manifest ... </message>
+    <message>   - Module file (${PLASTER_PARAM_ModuleName}.psm1) </message>
+    <file source='template/module.T.psm1'
+      destination='source/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psm1' />
+
+    <message>   - Module manifest (${PLASTER_PARAM_ModuleName}.psd1) </message>
+    <newModuleManifest
+      destination='source/${PLASTER_PARAM_ModuleName}/${PLASTER_PARAM_ModuleName}.psd1'
+      moduleVersion='$PLASTER_PARAM_Version'
+      author='$PLASTER_PARAM_FullName'
+      companyName='$PLASTER_PARAM_CompanyName'
+      description='$PLASTER_PARAM_ModuleDesc'
+      encoding='UTF8-NoBOM'
+      openInEditor='true'/>
+
+
+    <!-- ************************************************************************************ -->
+    <message> - Setting up the build harness ... </message>
+    <requireModule name='InvokeBuild'
+      minimumVersion='5.8.4'
+      message='Without InvokeBuild, you will not be able to run the build scripts' />
+
+    <templateFile source='template/module.build.T.ps1'
+      destination='.build.ps1' />
+
+    <!-- ************************************************************************************ -->
+    <message> - Setting up the test harness ... </message>
+    <requireModule name='Pester'
+      minimumVersion='5.3.0'
+      message='Use the new (v5) Pester' />
+
+    <!-- ************************************************************************************ -->
+    <message> - Setting up the editor (VSCode) ... </message>
+    <file source='static/vscode/*.json'
+      destination='.vscode/' />
+    <!-- ************************************************************************************ -->
+
+    <message> - Setting up git </message>
+    <file source='template/_gitattributes'
+      destination='.gitattributes'/>
+    <file source='template/_gitignore'
+      destination='.gitignore'/>
+
+    <message> - Storing template details ... </message>
+    <templateFile source='template/project-config.T.psd1'
+      destination='.project-config.psd1' />
+
+    <message> ---=:[ Completed $PLASTER_PARAM_ModuleName ]:=--- </message>
+
+    <message> To finalize the setup, run 'bootstrap.ps1' in the project root</message>
+  </content>
+</plasterManifest>

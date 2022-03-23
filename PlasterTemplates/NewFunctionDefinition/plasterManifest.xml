@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plasterManifest
+  schemaVersion="1.1"
+  templateType="Item" xmlns="http://www.microsoft.com/schemas/PowerShell/Plaster/v1">
+  <metadata>
+    <name>NewFunctionDefinition</name>
+    <id>aec7cd33-65b0-4452-a564-b878f0df2e87</id>
+    <version>1.0.0</version>
+    <title>NewFunctionDefinition</title>
+    <description>Generate a new Function Definition and it's test</description>
+    <author>Tim Aldrich</author>
+    <tags></tags>
+  </metadata>
+  <parameters>
+    <parameter name='FunctionName'
+               type='text'
+               prompt= 'Enter the name of the function'
+               store='text'
+    />
+    <parameter name='SourcePath'
+               type='text'
+               prompt= 'Enter the path (relative to source/)'
+               store='text'
+    />
+    <parameter name='Visibility'
+               type='choice'
+               default='1'
+               prompt='Will the function be exported?'
+    >
+      <choice label='&amp;Yes'
+              help='The function will be added to the \'FunctionsToExport\' key in the Manifest'
+              value='public' />
+
+      <choice label='&amp;No'
+              help='The function will not be added to the \'FunctionsToExport\' key in the Manifest'
+              value='private' />
+    </parameter>
+  </parameters>
+  <content>
+        <message> ---=:[ Creating ${PLASTER_PARAM_Name} function ]:=--- </message>
+    <!-- ************************************************************************************ -->
+
+    <templateFile source='template/source.T.ps1'
+      destination='source' />
+  </content>
+</plasterManifest>

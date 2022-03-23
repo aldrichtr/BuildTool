@@ -1,12 +1,25 @@
+#region Tests against Source module
 
 # synopsis: Run Pester tests tagged with 'unit' against source
-test run_unit_tests -Module $Source.Module -PesterConfig $Tests.Config.Unit
+test unit_test_source -Module $Source.Module -PesterConfig $Tests.Config.Unit
 
 # synopsis: Run Pester tests tagged with 'pssa' or 'analyze' against stage
-test run_script_analyzer_tests -Module $Staging.Module -PesterConfig $Tests.Config.Analyzer
+test analyzer_test_source -Module $Source.Module -PesterConfig $Tests.Config.Analyzer
 
 # synopsis: Run Pester tests tagged with 'perf' against stage
-test run_performance_tests -Module $Staging.Module -PesterConfig $Tests.Config.Performance
+test performance_test_source -Module $Source.Module -PesterConfig $Tests.Config.Performance
 
-# synopsis: generate code coverage report against stage
-test generate_coverage_report -Module $Staging.Module -PesterConfig $Tests.Config.Coverage
+#endregion
+
+#region Tests against Staging module
+
+# synopsis: Run Pester tests tagged with 'unit' against Staging
+test unit_test_staging -Module $Staging.Module -PesterConfig $Tests.Config.Unit
+
+# synopsis: Run Pester tests tagged with 'pssa' or 'analyze' against stage
+test analyzer_test_staging -Module $Staging.Module -PesterConfig $Tests.Config.Analyzer
+
+# synopsis: Run Pester tests tagged with 'perf' against stage
+test performance_test_staging -Module $Staging.Module -PesterConfig $Tests.Config.Performance
+
+#endregion
