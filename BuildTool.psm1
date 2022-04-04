@@ -1,5 +1,5 @@
 ################################################################################
-# BuildTool : 03/23/2022 13:46:41
+# BuildTool : 04/04/2022 17:16:59
 
 
 #region enum Section
@@ -1586,16 +1586,8 @@ Function Get-SourceModule {
     end {}
 }
 Function Test-FunctionName {
-    <#
-    .SYNOPSIS
-        Test that the given function name is valid.
-    .DESCRIPTION
-        Currently, a valid function:
-        - is in the form <verb>-<noun>
-        - has an approved verb
-    #>
-    [OutputType("boolean")]
     [CmdletBinding()]
+    [OutputType("boolean")]
     Param(
     [Parameter(Position = 0,Mandatory,HelpMessage = "Specify a function name.")]
     [ValidateNotNullOrEmpty()]

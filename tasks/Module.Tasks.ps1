@@ -43,8 +43,7 @@ task make_staging_manifest {
 
     foreach ($m in $modules) {
         $ex_functions += Get-SourceItem (Join-Path $c.Project.Path $m.Path) | where-object {
-            $_.Visibility -like 'public'
-        }
+            $_.Visibility -like 'public' } | Select -ExpandProperty Name
     }
 
     $module_options = @{

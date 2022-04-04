@@ -5,7 +5,7 @@ $config = "$PSScriptRoot\config\buildtool.defaults.ps1"
 try {
     . $config
     # Now, Load all the functions that are used by tasks
-    Import-Module "$BuildRoot\build\BuildTool.psd1" -Force -ErrorAction Stop
+    Import-Module "$BuildRoot\source\BuildTool\BuildTool.psd1" -Force -ErrorAction Stop
 } catch {
     Write-Error "Couldn't load BuildTool"
 }
