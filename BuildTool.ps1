@@ -1,15 +1,11 @@
 
 
-if (Test-Path $BuildRoot) {
+if (-not(Test-Path $BuildRoot)) {
     Write-Output "BuildRoot: $BuildRoot"
-} else {
-    Write-Error "BuildRoot is not defined"
 }
 
-if (Test-Path $BuildTools) {
+if (-not(Test-Path $BuildTools)) {
     Write-Output "BuildTools: $BuildTools"
-} else {
-    Write-Error "BuildTools is not defined"
 }
 
 $config = "$BuildTools\config\buildtool.defaults.ps1"
