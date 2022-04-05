@@ -1,6 +1,6 @@
 @{
     PSDependOptions = @{
-        Target = CurrentUser
+        Target = 'CurrentUser'
     }
     # A "BuildTool Framework"
     InvokeBuild = @{
