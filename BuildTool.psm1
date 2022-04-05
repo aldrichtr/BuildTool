@@ -1,5 +1,5 @@
 ################################################################################
-# BuildTool : 04/04/2022 17:16:59
+# BuildTool : 04/05/2022 17:36:30
 
 
 #region enum Section
@@ -137,7 +137,7 @@ Function Get-BuildConfigurationFile {
         } else {
             $pathSplat = @{
                 Path                = Get-ProjectRoot
-                ChildPath           = '.buildtool.config.psd1'
+                ChildPath           = '.buildtool/config.psd1'
             }
             $configFile = Join-Path @pathSplat
         }

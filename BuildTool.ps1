@@ -1,21 +1,15 @@
 
 
-if (-not(Test-Path $BuildRoot)) {
-    Write-Output "BuildRoot: $BuildRoot"
-}
-
-if (-not(Test-Path $BuildTools)) {
-    Write-Output "BuildTools: $BuildTools"
-}
-
-$defaults = "$BuildTools\config\buildtool.defaults.ps1"
 
 try {
-    . $defaults
-    # Now, Load all the functions that are used by tasks
-    Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
+    # The project's build file (.build.ps1) needs to set $BuildTools for this to work
+    if ($null -eq $BuildTools) {
+        Write-Error "Please set `$BuildTools to the directory where BuildTools was installed"
+    } else {
+            Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
+    }
 } catch {
-    Write-Error "Couldn't load BuildTool module at '$BuildTools\BuildTool.psd1'`n$_"
+    Write-Error "Couldn't load BuildTool from '$BuildTools\BuildTool.psd1'`n$_"
 }
 
 Get-BuildTask -Path "$BuildTools\tasks" -Recurse | ForEach-Object {
@@ -28,13 +22,14 @@ Get-BuildTask -Path "$BuildTools\tasks" -Recurse | ForEach-Object {
 }
 
 Enter-Build {
+    $config = Get-BuildConfiguration
     Write-Build Gray ('=' * 80)
     Write-Build Gray "# `u{E7A2} PowerShell BuildTools "
     Write-Build Gray "# BuildTools project running in '$BuildRoot'"
-    if ($Header -notlike 'minimal') {
+    if ($config.Build.Header -notlike 'minimal') {
         Write-Build Gray "Project directories:"
         ("Source", "Tests", "Docs", "Staging", "Artifact") | ForEach-Object {
-            $projPath = (Get-Variable $_ -ValueOnly)['Path']
+            $projPath = $config.$_.Path
             if (Test-Path $projPath) {
                 Write-Build Gray (" - {0,-16} {1}" -f $_, ((Get-Item $projPath) |
                         Resolve-Path -Relative -ErrorAction SilentlyContinue))
@@ -58,7 +53,7 @@ Enter-Build {
 task Help {
     Write-Build Red "The build type: $Type"
     Write-Build DarkBlue "A total of $(${*}.All.Count) tasks"
-    foreach( $t in ${*}.All.Keys) {
+    foreach ( $t in ${*}.All.Keys) {
         $hasSubTasks = $false
         $sub = @()
         $currentTask = ${*}.All[$t]
