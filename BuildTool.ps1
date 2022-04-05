@@ -8,17 +8,15 @@ if (-not(Test-Path $BuildTools)) {
     Write-Output "BuildTools: $BuildTools"
 }
 
-$config = "$BuildTools\config\buildtool.defaults.ps1"
+$defaults = "$BuildTools\config\buildtool.defaults.ps1"
 
 try {
-    . $config
+    . $defaults
     # Now, Load all the functions that are used by tasks
     Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
 } catch {
     Write-Error "Couldn't load BuildTool module at '$BuildTools\BuildTool.psd1'`n$_"
 }
-
-$c = Get-BuildConfiguration
 
 Get-BuildTask -Path "$BuildTools\tasks" -Recurse | ForEach-Object {
     $fileName = $_.Name
