@@ -6,7 +6,7 @@ try {
     if ($null -eq $BuildTools) {
         Write-Error "Please set `$BuildTools to the directory where BuildTools was installed"
     } else {
-            Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
+        Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
     }
 } catch {
     Write-Error "Couldn't load BuildTool from '$BuildTools\BuildTool.psd1'`n$_"

@@ -1,5 +1,5 @@
 ################################################################################
-# BuildTool : 04/05/2022 17:36:30
+# BuildTool : 04/06/2022 18:09:57
 
 
 #region enum Section
@@ -221,7 +221,6 @@ Function New-BuildConfiguration {
     <#
     .SYNOPSIS
         Generate a new configuration file for a build based on inputs from the user
-
     #>
     [CmdletBinding()]
     param(
@@ -243,16 +242,29 @@ Function New-BuildConfiguration {
                 Path = 'build/PlasterTemplates'
             }
 
+            Source = @{
+                Path = $sourceRoot
+            }
+
             Docs    = @{
                 Path = 'docs'
             }
+
+            Staging = @{
+                Path = 'stage'
+            }
+
+            Artifact = @{
+                Path = 'out'
+            }
+
             Tests   = @{
                 Path   = "tests"
                 Config = @{
-                    Unit        = 'pester.config.unittests.psd1'
-                    Analyzer    = 'pester.config.analyzertests.psd1'
-                    Performance = 'pester.config.performancetests.psd1'
-                    Coverage    = 'pester.config.codecoverage.psd1'
+                    Unit        = './.buildtool/pester.config.unittests.psd1'
+                    Analyzer    = './.buildtool/pester.config.analyzertests.psd1'
+                    Performance = './.buildtool/pester.config.performancetests.psd1'
+                    Coverage    = './.buildtool/pester.config.codecoverage.psd1'
                 }
             }
         }
@@ -326,7 +338,7 @@ Function New-BuildConfiguration {
 
     }
     end {
-        $config | ConvertTo-Psd | Set-Content ".buildtool.config.psd1"
+        $config | ConvertTo-Psd | Set-Content '.\.buildtool\config.psd1'
     }
 }
 Function Set-BuildConfiguration {
