@@ -1,4 +1,5 @@
 
+$Script:BuildVersion = "0.4"
 
 function New-BuildEnvironment {
     <#
@@ -16,58 +17,80 @@ function New-BuildEnvironment {
     )
     begin {
         $buildtool_manifest = ".\build\BuildTool.psd1"
+        Write-Host -ForegroundColor DarkGray ('=' * 80)
+        Write-Host -ForegroundColor DarkGray "= BuildTool Bootstrap script"
+        Write-Host -ForegroundColor DarkGray ('=' * 80)
     }
     process {
-        Write-Host -ForegroundColor Gray "Setting up the build environment"
-        Write-Host -ForegroundColor Gray "Looking for BuildTools"
-
-        if (-not(Test-Path $buildtool_manifest )) {
-
+        Write-Host -ForegroundColor DarkGray "Setting up the build environment"
+        <#------------------------------------------------------------------
+         # Step 1: Is BuildTool already here?
+        ------------------------------------------------------------------#>
+        Write-Host -ForegroundColor DarkGray "Looking for BuildTools"
+        if (Test-Path $buildtool_manifest ) {
+            #TODO: maybe if it's already here we need to redo something?
+            Write-Host -ForegroundColor Green "BuildTool is already here"
+            Import-Module $buildtool_manifest -Force
+            $btVersion = (Get-Module "BuildTool").Version
+            Write-Host -ForegroundColor Green " `u{E7A2} BuildTools version $btVersion"
+            $btExists = $true
+        } else {
             Write-Host -ForegroundColor Red "BuildTool is not installed"
-            if (-not(Test-Path ".\.git\config")) {
-                Write-Host -ForegroundColor Red "It doesn't look like this is a git repository yet"
-                $ans = Read-Host -Prompt "Do you want to create one now? (y)"
-                if ([string]::IsNullOrWhiteSpace($ans)) {
-                    $init = $true
-                } elseif ($ans -match '^[yY]') {
-                    $init = $true
-                } else {
-                    $init = $false
-                }
-            }
+            $btExists = $false
+        }
 
-            if ($init) {
-                Write-Host Gray "Initializing git repository with readme file"
-                if (-not(Test-Path ".\readme*" )) {
-                    "# project readme" | set-content "README.md"
-                }
-                git add ".\readme*"
-                git commit -m"Initial import of project"
-            }
 
+        if (-not(Test-Path ".\.git\config")) {
+            Write-Host -ForegroundColor Red "It doesn't look like this is a git repository yet"
+            $ans = Read-Host -Prompt "Do you want to create one now? (y)"
+            if ([string]::IsNullOrWhiteSpace($ans)) {
+                $gitExists = $true
+            } elseif ($ans -match '^[yY]') {
+                $gitExists = $true
+            } else {
+                $gitExists = $false
+            }
+        }
+
+        if (-not($gitExists)) {
+            Write-Host -ForegroundColor Gray "Initializing git repository with readme file"
+            if (-not(Test-Path ".\README*" )) {
+                "# project readme" | set-content "README.md"
+            }
+            git init
+
+            git add ".\README*"
+            git commit -m"Initial import of project"
+        }
+
+        if (-not($btExists)) {
             Write-Host -ForegroundColor Gray "Adding BuildTool as a submodule in 'build' directory"
             git submodule add 'https://github.com/aldrichtr/BuildTool.git' 'build'
+            $btExists = (Test-Path ".\build\BuildTool.psd1")
         }
 
-        Import-Module $buildtool_manifest -Force
-        Write-Host -ForegroundColor Green " `u{E7A2} BuildTools version $((Get-Module "BuildTool").Version)"
+        if ($btExists) {
+            Write-Host -ForegroundColor DarkGray "Repository and BuildTools are ready, Loading BuildTools"
+            Import-Module $buildtool_manifest -Force
 
-        Write-Host -ForegroundColor Gray "Configure buildtool"
+            Write-Host -ForegroundColor Green " `u{E7A2} BuildTools version $((Get-Module "BuildTool").Version)"
 
-        New-BuildConfiguration
+            Write-Host -ForegroundColor DarkGray "Now, let's configure this project to use buildtool"
 
-        $config = Get-BuildConfiguration
-        Write-Host -ForegroundColor Gray "Creating Directories"
-        foreach ($f in @('Source', 'Docs', 'Tests', 'Staging', 'Artifact')) {
-            $p = $config.$f.Path
-            Write-Host -ForegroundColor Gray " .. $f directory : $p"
-            mkdir $p -Force
-        }
+            New-BuildConfiguration
 
-        Write-Host -ForegroundColor Gray "Adding default config files"
-        Copy-Item ".\build\config\*" ".\.buildtool"
+            $config = Get-BuildConfiguration -Verbose
+            Write-Host -ForegroundColor DarkGray "Creating Directories"
+            foreach ($f in @('Source', 'Docs', 'Tests', 'Staging', 'Artifact')) {
+                $p = $config.$f.Path
+                Write-Host -ForegroundColor Gray " .. $f directory : ./$p"
+                if (-not(Test-Path $p)) { mkdir $p -Force }
+            }
 
-        $build_content = @"
+            Write-Host -ForegroundColor DarkGray "Adding default config files"
+            Copy-Item ".\build\config\*" ".\.buildtool"
+
+            $build_content = @"
         param (
             # BuildRoot is automatically set by Invoke-Build, but it could
             # be modified here so that hierarchical builds can be done
@@ -82,11 +105,16 @@ function New-BuildEnvironment {
             [Parameter()]
             [string]`$ModuleName = "`"$($config.Project.Name)`""
         )
-
-        . `"`$BuildTools\BuildTool.ps1`"
 "@
+            $buildScript = ".\.build.ps1"
+            Write-Host -ForegroundColor DarkGray "Creating a template build script"
+            $build_content | Set-Content $buildScript
+            Get-Content ".\build\BuildTool.ps1" | Add-Content $buildScript
 
-        $build_content | Set-Content ".\.build.ps1"
+
+        } else {
+            Write-Error "Couldn't get BuildTools setup in this folder`n$_"
+        }
     }
     end {
     }

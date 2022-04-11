@@ -1,16 +1,12 @@
 
 
-
+#region BuildTool Setup
 try {
-    # The project's build file (.build.ps1) needs to set $BuildTools for this to work
-    if ($null -eq $BuildTools) {
-        Write-Error "Please set `$BuildTools to the directory where BuildTools was installed"
-    } else {
-        Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
-    }
+    Import-Module "$BuildTools\BuildTool.psd1" -Force -ErrorAction Stop
 } catch {
     Write-Error "Couldn't load BuildTool from '$BuildTools\BuildTool.psd1'`n$_"
 }
+
 
 Get-BuildTask -Path "$BuildTools\tasks" -Recurse | ForEach-Object {
     $fileName = $_.Name
@@ -21,6 +17,9 @@ Get-BuildTask -Path "$BuildTools\tasks" -Recurse | ForEach-Object {
     }
 }
 
+#endregion
+
+#region InvokeBuild Steps
 Enter-Build {
     $config = Get-BuildConfiguration
     Write-Build Gray ('=' * 80)
@@ -40,6 +39,7 @@ Enter-Build {
     }
     Write-Build Gray ('=' * 80)
 }
+
 # Exit-Build { Write-Build DarkBlue "Exit-Build after the last task`n$('.' * 78) $Result`n$('.' * 78)" }
 # Enter-BuildTask { Write-Build DarkBlue "Enter-BuildTask - before each task"}
 # Exit-BuildTask { Write-Build DarkBlue "Exit-BuildTask - after each task" }
@@ -47,9 +47,10 @@ Enter-Build {
 # Exit-BuildJob { Write-Build DarkBlue "Exit-BuildJob - after each task action"}
 # Set-BuildHeader { param($Path) Write-Build DarkBlue "[X] Task $Path --- $(Get-BuildSynopsis $Task)" }
 # Set-BuildFooter {param($Path)}
+#endregion
 
 
-# write helpful output
+#synopsis: write helpful output
 task Help {
     Write-Build Red "The build type: $Type"
     Write-Build DarkBlue "A total of $(${*}.All.Count) tasks"

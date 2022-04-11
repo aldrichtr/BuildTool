@@ -1,4 +1,7 @@
 @{
+    PSDependOptions = @{
+        Target = 'CurrentUser'
+    }
     # A "BuildTool Framework"
     InvokeBuild = @{
         Version = '5.8.8'
