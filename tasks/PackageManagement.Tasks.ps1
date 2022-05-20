@@ -2,9 +2,12 @@
 
 # synopsis: create a temporary repository named after the Module
 task register_local_artifact_repository {
+    $c = Get-BuildConfiguration
+    $repo_path = (Join-Path (Join-Path $c.Project.path $c.Artifact.Path) $c.Project.Name)
+    if (-not(Test-Path $repo_path)) { mkdir $repo_path -Force | Out-Null}
     $local_repo = @{
-        Name         = $ModuleName
-        Location     = $Artifact.Path
+        Name         = $c.Project.Name
+        Location     = $repo_path
         Trusted      = $true
         ProviderName = "PowerShellGet"
     }
@@ -13,12 +16,15 @@ task register_local_artifact_repository {
 
 # synopsis: unregister the temporary repo
 task remove_temp_repository {
-    Unregister-PackageSource -Name $ModuleName -ErrorAction SilentlyContinue
+    $c = Get-BuildConfiguration
+    Unregister-PackageSource -Name $c.Project.Name -ErrorAction SilentlyContinue
 }
 
 # synopsis: a nuget package from the files in Staging.
 task publish_to_temp_repository {
-    Publish-Module -Path $Staging.Path -Repository $ModuleName
+    $c = Get-BuildConfiguration
+    $staging_dir = Join-Path $c.Staging.Path $c.Project.Name
+    Publish-Module -Path $staging_dir -Repository $c.Project.Name
 }
 #endregion Local Repository
 
@@ -26,7 +32,8 @@ task publish_to_temp_repository {
 
 # synopsis: remove the module from memory and delete from disk
 task uninstall_module {
-    Remove-Module -Name $ModuleName -Confirm
-    Uninstall-Module -Name $ModuleName
+    $c = Get-BuildConfiguration
+    Remove-Module -Name $c.Project.Name -Confirm
+    Uninstall-Module -Name $c.Project.Name
 }
 #endregion Uninstall

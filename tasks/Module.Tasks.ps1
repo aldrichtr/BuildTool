@@ -52,7 +52,7 @@ task make_staging_manifest {
         FunctionsToExport = $ex_functions
     }
     if ($nested.Length -gt 0) {
-        $n_mod = ($nested | select -Property Name) | Foreach-Object { "$_.psm1" }
+        $n_mod = ($nested | select -Property Name -ExpandProperty Name) | Foreach-Object { "$_.psm1" }
         $module_options.NestedModules     = $n_mod
     }
     Update-ModuleManifest @module_options
