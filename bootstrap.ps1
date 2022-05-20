@@ -1,5 +1,5 @@
 
-$Script:BuildVersion = "0.5"
+$Script:BuildVersion = "0.5.1"
 
 <#
 .SYNOPSIS

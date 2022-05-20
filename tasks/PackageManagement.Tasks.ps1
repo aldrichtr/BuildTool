@@ -17,7 +17,9 @@ task register_local_artifact_repository {
 # synopsis: unregister the temporary repo
 task remove_temp_repository {
     $c = Get-BuildConfiguration
-    Unregister-PackageSource -Name $c.Project.Name -ErrorAction SilentlyContinue
+    if ((Get-PackageSource | Select-Object -ExpandProperty Name) -contains $c.Project.Name) {
+        Unregister-PackageSource -Name $c.Project.Name
+    }
 }
 
 # synopsis: a nuget package from the files in Staging.

@@ -6,6 +6,7 @@ task Clean {
     $targets = $c.Clean.Targets
 
     foreach ($t in $targets) {
+        Write-Build DarkBlue "Removing '$($t.Path)'"
         Remove-Item @t
     }
 
